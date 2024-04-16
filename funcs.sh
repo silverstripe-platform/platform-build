@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # We want to disable vendor-expose calls during composer install, as we run
 # this manually later, but earlier releases of silverstripe/vendor-plugin
 # have a broken 'none' mode implementation, so we fall back to 'copy' mode.
@@ -30,7 +32,7 @@ function disable_postinstall_vendor_expose {
 # Copied from CWP, some sites still use the bespoke "private": "true" flag which redirects URLs to internal SSH.
 function parse_composer {
 	cp composer.lock composer.lock.orig
-	/usr/local/bin/php /parse_composer.php composer.json composer.lock.orig > composer.lock
+	/usr/local/bin/php /home/build/parse_composer.php composer.json composer.lock.orig > composer.lock
 }
 
 # TODO: Allow scripts during composer install if explicit configuration is present
@@ -107,11 +109,11 @@ function node_build {
 
 function package_source {
 	echo "Packaging up source code"
-	WORKING_DIR=${PWD##*/}
-	cd ../
-	mkdir -p site
-	cp -rp ${WORKING_DIR}/. site
+	# WORKING_DIR="/${PWD##*/}"
+	cd ~/
+	# mkdir -p site
+	# cp -rp ${WORKING_DIR}/. site
 	rm -rf site/.git/
-	tar -czf /payload-source-"$1".tgz site
-	du -h /payload-source-"$1".tgz
+	tar -czf payload-source-"$1".tgz site
+	du -h payload-source-"$1".tgz
 }

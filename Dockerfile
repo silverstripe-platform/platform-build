@@ -10,6 +10,16 @@ RUN pecl install zip && docker-php-ext-enable zip
 # Pull Composer from base image
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
+# Adding a non-root user to execute scripts in the container
+RUN useradd -d /home/build -s /usr/sbin/nologin -m -u 2000 -U build
+
+# Install Yarn
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+RUN apt-get update && apt-get install -y --no-install-recommends yarn
+
+USER build
+
 # Allow uninhibited SSH connections to support fetching external resources
 RUN mkdir -p ~/.ssh
 RUN chmod 0700 ~/.ssh
@@ -19,9 +29,11 @@ RUN chmod 400 ~/.ssh/config
 # Install legacy vendor-plugin-helper module as a fallback for exposing assets
 RUN composer global require silverstripe/vendor-plugin-helper
 
+WORKDIR /home/build
+
 # Fetch NVM installer and prep destination
-ENV NVM_DIR=/root/.nvm
-RUN mkdir -p /root/.nvm
+ENV NVM_DIR=/home/build/.nvm
+RUN mkdir -p ~/.nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.35.3/install.sh > install.sh
 
 # Verify that the NVM installer remains uncompromised - bail on the build if not
@@ -33,14 +45,10 @@ ENV NODE_VERSION=
 RUN bash install.sh
 RUN . $NVM_DIR/nvm.sh && nvm install v6 && nvm install v8 && nvm install v10 && nvm install v12
 
-# Install Yarn
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-RUN apt-get update && apt-get install -y --no-install-recommends yarn
-
-COPY funcs.sh /funcs.sh
-COPY parse_composer.php /parse_composer.php
-COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY --chown=build:build funcs.sh /home/build/funcs.sh
+COPY --chown=build:build parse_composer.php /home/build/parse_composer.php
+COPY --chown=build:build docker-entrypoint.sh /home/build/docker-entrypoint.sh
 
 WORKDIR /app
-ENTRYPOINT ["/docker-entrypoint.sh"]
+
+ENTRYPOINT ["/home/build/docker-entrypoint.sh"]

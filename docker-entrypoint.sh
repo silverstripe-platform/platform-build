@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-source /funcs.sh
+source ~/funcs.sh
+
+WORKING_DIR="/${PWD##*/}"
+cd ~/
+mkdir -p site
+cp -rp "${WORKING_DIR}"/. site
+cd site/
 
 if [ -d ".git" ]; then
 	SHA=$(git rev-parse HEAD)
@@ -61,3 +67,5 @@ if [[ -f composer.lock && "$(cat composer.lock | jq '.packages[] | select(.name 
 fi
 
 package_source ${SHA}
+
+/bin/bash
