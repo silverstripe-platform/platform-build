@@ -47,8 +47,12 @@ RUN . $NVM_DIR/nvm.sh && nvm install v6 && nvm install v8 && nvm install v10 && 
 
 COPY --chown=build:build funcs.sh /home/build/funcs.sh
 COPY --chown=build:build parse_composer.php /home/build/parse_composer.php
-COPY --chown=build:build docker-entrypoint.sh /home/build/docker-entrypoint.sh
+COPY --chown=build:build build-project.sh /home/build/build-project.sh
+
+COPY --chmod=500 docker-entrypoint.sh /docker-entrypoint.sh
 
 WORKDIR /app
 
-ENTRYPOINT ["/home/build/docker-entrypoint.sh"]
+USER root
+
+ENTRYPOINT ["/docker-entrypoint.sh", "build"]

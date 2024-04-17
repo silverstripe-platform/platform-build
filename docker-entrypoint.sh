@@ -1,71 +1,30 @@
 #!/usr/bin/env bash
 set -e
 
-source ~/funcs.sh
+USER="$1"
 
-WORKING_DIR="/${PWD##*/}"
-cd ~/
-mkdir -p site
-cp -rp "${WORKING_DIR}"/. site
-cd site/
-
-if [ -d ".git" ]; then
-	SHA=$(git rev-parse HEAD)
-else
-	echo "Unable to determine SHA, failing."
-	exit 1
+if [ -z "$USER" ] ; then
+    echo "Invalid build user given, failing."
+    exit 1
 fi
 
-if [[ "z${IDENT_KEY}" == "z" ]]; then
-	echo "No deploy key set"
-else
-	mkdir -p ~/.ssh
-	echo "${IDENT_KEY}" > ~/.ssh/id_rsa
-	chmod 0600 ~/.ssh/id_rsa
-	FINGER_PRINT=$(ssh-keygen -E md5 -lf ~/.ssh/id_rsa | awk '{ print $2 }' | cut -c 5-)
-	echo "Using deploy key ${FINGER_PRINT}"
-fi
+USER_ID=$(id -u "$USER")
+USER_GID=$(id -g "$USER")
 
-# Docs mention the cache is at /tmp/cache. Make sure this is true!
-export COMPOSER_HOME="/tmp"
+# Cache directory is mounted with root as owner so need to make it writeable by the non-root user. 
+chown -R $USER_ID:$USER_GID /tmp/cache
 
-# Provide simple fingerprint for detecting that a deployment is in progress
-export CLOUD_BUILD=1
+# SSH key is mounted in root ssh directory, but we need it in the non-root user's home directory. 
+cp ~/.ssh/id_rsa /home/"$USER"/.ssh/
+chown "$USER_ID":"$USER_GID" /home/"$USER"/.ssh/id_rsa
 
-if [ "${PARSE_COMPOSER}" != "" ]; then
-	echo "Running parse_composer..."
-	parse_composer
-fi
+export APP_DIR="/${PWD##*/}"
 
-# Disable vendor-expose during composer install (CMS 4+)
-if [[ -f composer.lock && "$(cat composer.lock | jq '.packages[] | select(.name == "silverstripe/vendor-plugin")')" != "" ]]; then
-	disable_postinstall_vendor_expose
-fi
+# Run as non-root user and make required environment variables available to the script.
+su --command="/bin/bash /home/$USER/build-project.sh" \
+    --shell=/bin/bash \
+    --whitelist-environment="CLOUD_BUILD_DISABLED,PARSE_COMPOSER,IDENT_KEY,APP_DIR" \
+    - "${USER}"
 
-composer_install
-
-if [ "${CLOUD_BUILD_DISABLED}" == "" ]; then
-	echo "Running cloud-build..."
-
-	# Run NPM/Yarn build script if the cloud-build command is defined
-	if [[ -f package.json && "`cat package.json | jq '.scripts["cloud-build"]?'`" != "null" ]]; then
-		set_node_version
-
-		node_build
-	fi
-
-	# Run Composer build script if the cloud-build command is defined
-	if [[ -f composer.json && "`cat composer.json | jq '.scripts["cloud-build"]?'`" != "null" ]]; then
-		composer_build
-	fi
-
-fi
-
-# Manually run vendor-expose once scripts have run (CMS 4+)
-if [[ -f composer.lock && "$(cat composer.lock | jq '.packages[] | select(.name == "silverstripe/vendor-plugin")')" != "" ]]; then
-	composer_vendor_expose
-fi
-
-package_source ${SHA}
-
-/bin/bash
+# Move artefact to the location dash expects it to be.
+mv /home/"$USER"/payload-source* /
