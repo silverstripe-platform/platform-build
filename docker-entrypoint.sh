@@ -11,12 +11,14 @@ fi
 USER_ID=$(id -u "$USER")
 USER_GID=$(id -g "$USER")
 
-# Cache directory is mounted with root as owner so need to make it writeable by the non-root user. 
+# Cache directory is mounted with root as owner so need to make it writeable by the non-root user.
 chown -R $USER_ID:$USER_GID /tmp/cache
 
-# SSH key is mounted in root ssh directory, but we need it in the non-root user's home directory. 
-cp ~/.ssh/id_rsa /home/"$USER"/.ssh/
-chown "$USER_ID":"$USER_GID" /home/"$USER"/.ssh/id_rsa
+# If SSH key is mounted in root ssh directory, we'll need it in the non-root user's home directory.
+if [ -f ~/.ssh/id_rsa ]; then
+    cp ~/.ssh/id_rsa /home/"$USER"/.ssh/
+    chown "$USER_ID":"$USER_GID" /home/"$USER"/.ssh/id_rsa
+fi
 
 export APP_DIR="/${PWD##*/}"
 

@@ -32,7 +32,7 @@ function disable_postinstall_vendor_expose {
 # Copied from CWP, some sites still use the bespoke "private": "true" flag which redirects URLs to internal SSH.
 function parse_composer {
 	cp composer.lock composer.lock.orig
-	/usr/local/bin/php /home/build/parse_composer.php composer.json composer.lock.orig > composer.lock
+	/usr/local/bin/php ~/parse_composer.php composer.json composer.lock.orig > composer.lock
 }
 
 # TODO: Allow scripts during composer install if explicit configuration is present
