@@ -59,7 +59,7 @@ function composer_vendor_expose {
 
 	if [ "$RETVAL" -gt "0" ]; then
 		echo "[WARNING] 'composer vendor-expose' failed. Falling back to vendor-plugin-helper. Please address this failure, as this fallback will be removed in a future update." >&2
-		/root/.composer/vendor/bin/vendor-plugin-helper copy ./
+		~/.composer/vendor/bin/vendor-plugin-helper copy ./
 	fi
 }
 
@@ -69,7 +69,7 @@ function composer_build {
 }
 
 function set_node_version {
-	. /root/.nvm/nvm.sh --no-use
+	. ~/.nvm/nvm.sh --no-use
 
 	if [[ -f ".nvmrc" ]]; then
 		echo "nvm use"
@@ -101,11 +101,8 @@ function node_build {
 
 function package_source {
 	echo "Packaging up source code"
-	WORKING_DIR=${PWD##*/}
-	cd ../
-	mkdir -p site
-	cp -rp ${WORKING_DIR}/. site
+	cd ~/
 	rm -rf site/.git/
-	tar -czf /payload-source-"$1".tgz site
-	du -h /payload-source-"$1".tgz
+	tar -czf payload-source-"$1".tgz site
+	du -h payload-source-"$1".tgz
 }
