@@ -20,6 +20,7 @@ chown -R $USER_ID:$USER_GID /tmp/cache
 # If SSH key is mounted in root ssh directory, we'll need it in the non-root user's home directory.
 if [ -f ~/.ssh/id_rsa ]; then
     cp ~/.ssh/id_rsa /home/"$USER"/.ssh/
+    chmod 400 /home/"$USER"/.ssh/id_rsa
     chown "$USER_ID":"$USER_GID" /home/"$USER"/.ssh/id_rsa
 fi
 
