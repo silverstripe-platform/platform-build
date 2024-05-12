@@ -29,8 +29,8 @@ export APP_DIR="/${PWD##*/}"
 # Run as non-root user and make required environment variables available to the script.
 su --command="/bin/bash /home/$USER/build-project.sh" \
     --shell=/bin/bash \
-    --whitelist-environment="CLOUD_BUILD_DISABLED,IDENT_KEY,APP_DIR" \
+    --whitelist-environment="CLOUD_BUILD_DISABLED,IDENT_KEY,APP_DIR,HTTP_PROXY,HTTPS_PROXY,http_proxy,https_proxy" \
     - "${USER}"
 
-# Move artefact to the location dash expects it to be.
+# Move artefact to the same location as previous code builder versions for backward compatibility.
 mv /home/"$USER"/payload-source* /
