@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # Copy the project to another directory so that the non-root user can work with it.
 cd ~/
