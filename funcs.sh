@@ -68,12 +68,12 @@ function composer_build {
 	composer run-script cloud-build
 }
 
-function set_node_version {
+function node_install {
 	. /root/.nvm/nvm.sh --no-use
 
 	if [[ -f ".nvmrc" ]]; then
-		echo "nvm use"
-		nvm use
+		echo "nvm install"
+		nvm install
 	else
 		echo "No .nvmrc found; Defaulting to Node 16"
 		nvm use 16

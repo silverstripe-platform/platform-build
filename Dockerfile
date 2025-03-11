@@ -28,10 +28,9 @@ RUN curl https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh > insta
 ENV NVM_EXPECTED_HASH="586d621487c98d7ae0b6f9727ec5bd84  install.sh"
 RUN if [ "`md5sum install.sh`" != "$NVM_EXPECTED_HASH" ]; then exit 1; fi;
 
-# Install NVM without a default Node binary, add all LTS versions
-ENV NODE_VERSION=
+# Install NVM with a default Node binary of 16
+ENV NODE_VERSION=16
 RUN bash install.sh
-RUN . $NVM_DIR/nvm.sh && nvm install v16 && nvm install v18 && nvm install v20
 
 # Install Yarn
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
