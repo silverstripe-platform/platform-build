@@ -41,7 +41,7 @@ if [ "${CLOUD_BUILD_DISABLED}" == "" ]; then
 
 	# Run NPM/Yarn build script if the cloud-build command is defined
 	if [[ -f package.json && "`cat package.json | jq '.scripts["cloud-build"]?'`" != "null" ]]; then
-		set_node_version
+		node_install
 
 		node_build
 	fi
