@@ -83,10 +83,10 @@ function node_install {
 function node_build {
 	if [[ -f "yarn.lock" ]]; then
 		echo "yarn install --no-progress --non-interactive"
-		yarn install --no-progress --non-interactive
+		YARN_IGNORE_PATH=1 yarn install --no-progress --non-interactive
 
 		echo "yarn run cloud-build"
-		yarn run cloud-build
+		YARN_IGNORE_PATH=1 yarn run cloud-build
 	else
 		echo "npm install"
 		npm install
