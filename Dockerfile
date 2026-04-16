@@ -1,5 +1,5 @@
 # Core tools / PHP extensions
-FROM composer:2@sha256:6b8dbded0cfb109dd3b06902ba4b0406d9eda689ccce5363c46f8bf25451b083 AS composer
+FROM composer:2@sha256:b148074c5cf8e5c564e92baa3f0d2e28ffa0361ede57a03de3bf4b9cf80de54a AS composer
 FROM php:8.2-cli@sha256:5d2d115e42afd2ac0c8373758221a6e942bac1d0f50d4928db6c6663d4d25981
 
 # Install core dependencies
@@ -17,6 +17,8 @@ RUN printf "Host *\nStrictHostKeyChecking no\nUserKnownHostsFile /dev/null\n" > 
 RUN chmod 400 ~/.ssh/config
 
 # Install legacy vendor-plugin-helper module as a fallback for exposing assets
+RUN composer global config audit.block-insecure false
+RUN composer global config --no-plugins allow-plugins true
 RUN composer global require silverstripe/vendor-plugin-helper
 
 # Fetch NVM installer and prep destination
