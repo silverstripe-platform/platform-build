@@ -17,9 +17,9 @@ RUN printf "Host *\nStrictHostKeyChecking no\nUserKnownHostsFile /dev/null\n" > 
 RUN chmod 400 ~/.ssh/config
 
 # Install legacy vendor-plugin-helper module as a fallback for exposing assets
-RUN composer global config audit.block-insecure false
-RUN composer global config --no-plugins allow-plugins true
-RUN composer global require silverstripe/vendor-plugin-helper
+RUN composer global config allow-plugins.composer/installers true
+RUN composer global config allow-plugins.silverstripe/vendor-plugin true
+RUN composer global require silverstripe/vendor-plugin-helper --no-security-blocking
 
 # Fetch NVM installer and prep destination
 ENV NVM_DIR=/root/.nvm
