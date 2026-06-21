@@ -28,7 +28,7 @@ docker run \
     --volume composer_cache:/tmp/cache \
     --volume ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro \
     --volume $PWD:/app \
-    silverstripe/platform-build
+    ghcr.io/silverstripe/platform-build
 ```
 
 `--volume composer_cache:/tmp/cache`
@@ -45,6 +45,49 @@ private key (deploy key) into the container (preferable as read only)
 
 The source code will be built from the `/app` directory inside the container, so
 make sure you mount your source code into that.
+
+## Building and Publishing
+
+Images are published to GitHub Container Registry at `ghcr.io/silverstripe-platform/platform-build`.
+
+### Prerequisites
+
+Set environment variables for authentication:
+
+```bash
+export GHCR_USER=<your-github-username>
+export GHCR_TOKEN=<your-github-personal-access-token>
+```
+
+The token needs the `write:packages` scope.
+
+See [https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic) for creating tokens.
+
+### Login
+
+```bash
+make login
+```
+
+### Build a versioned image
+
+```bash
+make build VERSION=1.2.3
+```
+
+This tags both `ghcr.io/silverstripe-platform/platform-build:1.2.3` and `:latest`.
+
+### Push to GHCR
+
+```bash
+make push VERSION=1.2.3
+```
+
+### Full release (login, build, push)
+
+```bash
+make release VERSION=1.2.3
+```
 
 ## Maintenance
 
